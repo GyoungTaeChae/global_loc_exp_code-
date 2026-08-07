@@ -264,8 +264,8 @@ int main(int argc, char** argv) {
   output << std::fixed;
   output << "frame,timestamp_ns,tile_x,tile_y,tile_frames,tile_points,query_points,"
             "gt_x,gt_y,gt_yaw_deg,gt_inlier,gt_probe_ok,gt_probe_dt,gt_probe_dr,gt_probe_inlier,"
-            "evaluated,passed,distinct,feature_ms,ransac_ms,"
-            "config,polish_ms,best_inlier,best_error,err_trans,err_rot_deg\n";
+            "evaluated,passed,distinct,oracle_dt,feature_ms,ransac_ms,"
+            "config,polish_ms,best_inlier,best_error,err_trans,err_rot_deg,oracle_polished_dt\n";
 
   glexp::Localizer localizer(arguments.localizer);
   std::vector<std::unique_ptr<glexp::PolishEngine>> engines;
@@ -336,6 +336,19 @@ int main(int argc, char** argv) {
     glexp::LocalizeStats stats;
     const std::vector<glexp::Candidate> candidates = localizer.localize(query, &stats);
 
+    // How close the candidate stage got, ignoring which candidate the score
+    // picked. Separates "RANSAC never proposed the right pose" from "polish or
+    // the rescore chose the wrong candidate".
+    double oracle_translation = std::nan("");
+    for (const glexp::Candidate& candidate : candidates) {
+      const double distance = (candidate.transformation.block<3, 1>(0, 3).cast<double>() -
+        ground_truth.block<3, 1>(0, 3))
+                                .norm();
+      if (std::isnan(oracle_translation) || distance < oracle_translation) {
+        oracle_translation = distance;
+      }
+    }
+
     const Eigen::Matrix4f ground_truth_float = ground_truth.cast<float>();
     const glexp::Candidate at_ground_truth = localizer.score(*query, ground_truth_float);
     double probe_translation = std::nan("");
@@ -354,6 +367,7 @@ int main(int argc, char** argv) {
     for (std::size_t config_index = 0; config_index < arguments.configs.size(); ++config_index) {
       const auto polish_start = std::chrono::steady_clock::now();
       glexp::Candidate best;
+      double oracle_polished = std::nan("");
       for (const glexp::Candidate& candidate : candidates) {
         Eigen::Matrix4f refined = candidate.transformation;
         engines[config_index]->refine(query, candidate.transformation, &refined);
@@ -361,6 +375,11 @@ int main(int argc, char** argv) {
         if (rescored.inlier_fraction > best.inlier_fraction ||
             (rescored.inlier_fraction == best.inlier_fraction && rescored.error < best.error)) {
           best = rescored;
+        }
+        const double distance =
+          (refined.block<3, 1>(0, 3).cast<double>() - ground_truth.block<3, 1>(0, 3)).norm();
+        if (std::isnan(oracle_polished) || distance < oracle_polished) {
+          oracle_polished = distance;
         }
       }
       const double polish_ms =
@@ -397,11 +416,12 @@ int main(int argc, char** argv) {
              << at_ground_truth.inlier_fraction << "," << probe_ok << "," << probe_translation
              << ","
              << probe_rotation << "," << probe_inlier << "," << stats.evaluated << ","
-             << stats.passed << "," << stats.distinct_candidates << "," << std::setprecision(1)
-             << stats.feature_ms << "," << stats.ransac_ms << ","
-             << arguments.configs[config_index].label << "," << polish_ms << ","
-             << std::setprecision(4) << best.inlier_fraction << "," << best.error << ","
-             << std::setprecision(3) << translation_error << "," << rotation_error << "\n";
+             << stats.passed << "," << stats.distinct_candidates << "," << std::setprecision(3)
+             << oracle_translation << "," << std::setprecision(1) << stats.feature_ms << ","
+             << stats.ransac_ms << "," << arguments.configs[config_index].label << ","
+             << polish_ms << "," << std::setprecision(4) << best.inlier_fraction << ","
+             << best.error << "," << std::setprecision(3) << translation_error << ","
+             << rotation_error << "," << oracle_polished << "\n";
     }
     output.flush();
     ++frames_done;
