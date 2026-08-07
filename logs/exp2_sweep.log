@@ -1,0 +1,292 @@
+map    /home/cgt24/work/dataset/rosBagFiles/mulran/kaist001
+query  /home/cgt24/work/dataset/rosBagFiles/mulran/kaist002
+tile   radius=80.000000 voxel=0.500000 grid=24.000000 min_frames=20
+ransac budget=10000 top_k=10 min_inlier=0.250000 threads=16
+config 0  none
+config 1  icp_d1_i30
+config 2  icp_d2_i30
+config 3  icp_d4_i30
+config 4  gicp_d1_i30
+config 5  gicp_d2_i30
+config 6  gicp_d4_i30
+config 7  ndt_r1_i30
+config 8  ndt_r2_i30
+config 9  ndt_r3_i30
+map frames 8226 (8046 posed), query frames 8941 (8850 posed)
+evaluating 122 query frames (stride 73)
+  tile [72.0, -144.0] 539 frames, 230090 pts, 5480ms
+  tile [48.0, -120.0] 528 frames, 219318 pts, 4407ms
+  tile [24.0, -72.0] 522 frames, 225257 pts, 4835ms
+  tile [0.0, -24.0] 617 frames, 257232 pts, 5908ms
+  tile [-24.0, 24.0] 693 frames, 281568 pts, 6539ms
+  tile [-48.0, 72.0] 751 frames, 277294 pts, 6210ms
+  tile [-72.0, 144.0] 758 frames, 314109 pts, 7513ms
+  tile [-120.0, 192.0] 936 frames, 292436 pts, 7151ms
+  tile [-168.0, 240.0] 1172 frames, 352767 pts, 9758ms
+  tile [-192.0, 264.0] 958 frames, 326376 pts, 8171ms
+[sweep]  10/122  elapsed 425s  eta 4758s  tiles 10 (0 thin)
+    none                 pass 20.0%  >=10m 20.0%  p50 3.59m  p90 35.29m  polish 8ms
+    icp_d1_i30           pass 60.0%  >=10m 10.0%  p50 1.89m  p90 16.24m  polish 3508ms
+    icp_d2_i30           pass 70.0%  >=10m 10.0%  p50 1.44m  p90 16.62m  polish 4205ms
+    icp_d4_i30           pass 70.0%  >=10m 10.0%  p50 1.16m  p90 16.47m  polish 4607ms
+    gicp_d1_i30          pass 80.0%  >=10m 10.0%  p50 0.33m  p90 16.66m  polish 5227ms
+    gicp_d2_i30          pass 90.0%  >=10m 10.0%  p50 0.25m  p90 18.56m  polish 5400ms
+    gicp_d4_i30          pass 90.0%  >=10m 10.0%  p50 0.23m  p90 16.40m  polish 5252ms
+    ndt_r1_i30           pass 70.0%  >=10m 10.0%  p50 0.49m  p90 16.17m  polish 1893ms
+    ndt_r2_i30           pass 80.0%  >=10m 10.0%  p50 0.52m  p90 17.69m  polish 2231ms
+    ndt_r3_i30           pass 80.0%  >=10m 10.0%  p50 0.51m  p90 17.75m  polish 2159ms
+  tile [-144.0, 288.0] 1349 frames, 356654 pts, 10318ms
+  tile [-96.0, 312.0] 1104 frames, 321922 pts, 9015ms
+  tile [-72.0, 336.0] 984 frames, 308239 pts, 8194ms
+  tile [-24.0, 312.0] 918 frames, 262121 pts, 6517ms
+  tile [24.0, 288.0] 582 frames, 211151 pts, 4245ms
+  tile [72.0, 264.0] 696 frames, 273520 pts, 6452ms
+  tile [120.0, 240.0] 667 frames, 302018 pts, 7030ms
+  tile [192.0, 264.0] 329 frames, 188020 pts, 3604ms
+  tile [264.0, 288.0] 374 frames, 146698 pts, 2936ms
+  tile [312.0, 288.0] 350 frames, 158664 pts, 3079ms
+[sweep]  20/122  elapsed 855s  eta 4363s  tiles 20 (0 thin)
+    none                 pass 40.0%  >=10m 10.0%  p50 2.19m  p90 21.33m  polish 8ms
+    icp_d1_i30           pass 70.0%  >=10m 5.0%  p50 1.31m  p90 6.15m  polish 4159ms
+    icp_d2_i30           pass 80.0%  >=10m 5.0%  p50 0.98m  p90 5.50m  polish 4603ms
+    icp_d4_i30           pass 80.0%  >=10m 5.0%  p50 0.98m  p90 3.92m  polish 4749ms
+    gicp_d1_i30          pass 85.0%  >=10m 5.0%  p50 0.34m  p90 3.72m  polish 5077ms
+    gicp_d2_i30          pass 90.0%  >=10m 5.0%  p50 0.25m  p90 2.00m  polish 5097ms
+    gicp_d4_i30          pass 90.0%  >=10m 5.0%  p50 0.24m  p90 2.02m  polish 4944ms
+    ndt_r1_i30           pass 80.0%  >=10m 5.0%  p50 0.49m  p90 5.24m  polish 1979ms
+    ndt_r2_i30           pass 85.0%  >=10m 5.0%  p50 0.52m  p90 4.31m  polish 2227ms
+    ndt_r3_i30           pass 85.0%  >=10m 5.0%  p50 0.55m  p90 4.36m  polish 2201ms
+  tile [336.0, 240.0] 383 frames, 178154 pts, 3283ms
+  tile [360.0, 192.0] 418 frames, 212491 pts, 4510ms
+  tile [408.0, 168.0] 411 frames, 210806 pts, 4419ms
+  tile [432.0, 168.0] 389 frames, 202322 pts, 4177ms
+  tile [456.0, 192.0] 283 frames, 167550 pts, 3249ms
+  tile [504.0, 240.0] 197 frames, 175430 pts, 3262ms
+  tile [552.0, 240.0] 199 frames, 208296 pts, 3777ms
+  tile [600.0, 192.0] 175 frames, 170683 pts, 2970ms
+  tile [648.0, 144.0] 175 frames, 136789 pts, 2133ms
+  tile [672.0, 96.0] 182 frames, 111710 pts, 1773ms
+[sweep]  30/122  elapsed 1214s  eta 3724s  tiles 30 (0 thin)
+    none                 pass 43.3%  >=10m 10.0%  p50 1.91m  p90 13.94m  polish 7ms
+    icp_d1_i30           pass 70.0%  >=10m 3.3%  p50 1.07m  p90 4.39m  polish 4053ms
+    icp_d2_i30           pass 83.3%  >=10m 3.3%  p50 0.98m  p90 3.46m  polish 4342ms
+    icp_d4_i30           pass 86.7%  >=10m 3.3%  p50 0.97m  p90 3.37m  polish 4427ms
+    gicp_d1_i30          pass 90.0%  >=10m 3.3%  p50 0.60m  p90 2.02m  polish 4916ms
+    gicp_d2_i30          pass 93.3%  >=10m 3.3%  p50 0.42m  p90 1.54m  polish 4959ms
+    gicp_d4_i30          pass 93.3%  >=10m 3.3%  p50 0.61m  p90 1.54m  polish 4812ms
+    ndt_r1_i30           pass 83.3%  >=10m 3.3%  p50 0.65m  p90 2.96m  polish 2000ms
+    ndt_r2_i30           pass 86.7%  >=10m 3.3%  p50 0.66m  p90 2.04m  polish 2192ms
+    ndt_r3_i30           pass 90.0%  >=10m 3.3%  p50 0.66m  p90 2.06m  polish 2162ms
+  tile [648.0, 48.0] 206 frames, 136505 pts, 2292ms
+  tile [600.0, 24.0] 214 frames, 142679 pts, 2567ms
+  tile [552.0, 24.0] 354 frames, 179151 pts, 3619ms
+  tile [528.0, 72.0] 366 frames, 125887 pts, 2703ms
+  tile [480.0, 48.0] 469 frames, 181431 pts, 3537ms
+  tile [480.0, 24.0] 511 frames, 211274 pts, 4200ms
+  tile [480.0, -24.0] 467 frames, 186229 pts, 3527ms
+  tile [456.0, -72.0] 353 frames, 177485 pts, 3590ms
+  tile [384.0, -120.0] 345 frames, 200326 pts, 4253ms
+  tile [336.0, -168.0] 417 frames, 253797 pts, 5414ms
+[sweep]  40/122  elapsed 1591s  eta 3262s  tiles 40 (0 thin)
+    none                 pass 35.0%  >=10m 12.5%  p50 2.01m  p90 13.94m  polish 7ms
+    icp_d1_i30           pass 75.0%  >=10m 5.0%  p50 1.11m  p90 4.39m  polish 4079ms
+    icp_d2_i30           pass 85.0%  >=10m 5.0%  p50 0.98m  p90 3.46m  polish 4289ms
+    icp_d4_i30           pass 87.5%  >=10m 5.0%  p50 0.98m  p90 3.37m  polish 4344ms
+    gicp_d1_i30          pass 90.0%  >=10m 5.0%  p50 0.65m  p90 2.02m  polish 4910ms
+    gicp_d2_i30          pass 95.0%  >=10m 2.5%  p50 0.62m  p90 1.40m  polish 4933ms
+    gicp_d4_i30          pass 95.0%  >=10m 2.5%  p50 0.66m  p90 1.40m  polish 4837ms
+    ndt_r1_i30           pass 85.0%  >=10m 5.0%  p50 0.75m  p90 2.96m  polish 1993ms
+    ndt_r2_i30           pass 87.5%  >=10m 5.0%  p50 0.74m  p90 2.04m  polish 2153ms
+    ndt_r3_i30           pass 90.0%  >=10m 5.0%  p50 0.70m  p90 2.06m  polish 2142ms
+  tile [288.0, -192.0] 379 frames, 278215 pts, 5732ms
+  tile [264.0, -216.0] 274 frames, 233953 pts, 4430ms
+  tile [192.0, -240.0] 355 frames, 206082 pts, 4015ms
+  tile [144.0, -240.0] 463 frames, 253964 pts, 5066ms
+  tile [120.0, -216.0] 557 frames, 262133 pts, 5338ms
+  tile [96.0, -168.0] 610 frames, 270040 pts, 5712ms
+  tile [48.0, -120.0] 528 frames, 219318 pts, 4701ms
+  tile [24.0, -48.0] 566 frames, 234705 pts, 5326ms
+  tile [0.0, 0.0] 655 frames, 283040 pts, 6278ms
+  tile [-24.0, 48.0] 717 frames, 301272 pts, 7028ms
+[sweep]  50/122  elapsed 2012s  eta 2897s  tiles 50 (0 thin)
+    none                 pass 30.0%  >=10m 12.0%  p50 2.19m  p90 13.94m  polish 7ms
+    icp_d1_i30           pass 74.0%  >=10m 4.0%  p50 1.11m  p90 4.39m  polish 4096ms
+    icp_d2_i30           pass 84.0%  >=10m 4.0%  p50 0.98m  p90 3.14m  polish 4354ms
+    icp_d4_i30           pass 90.0%  >=10m 4.0%  p50 1.00m  p90 2.06m  polish 4406ms
+    gicp_d1_i30          pass 92.0%  >=10m 4.0%  p50 0.63m  p90 1.54m  polish 4985ms
+    gicp_d2_i30          pass 96.0%  >=10m 2.0%  p50 0.61m  p90 1.23m  polish 4964ms
+    gicp_d4_i30          pass 96.0%  >=10m 2.0%  p50 0.66m  p90 1.37m  polish 4890ms
+    ndt_r1_i30           pass 88.0%  >=10m 4.0%  p50 0.65m  p90 2.34m  polish 2005ms
+    ndt_r2_i30           pass 90.0%  >=10m 4.0%  p50 0.67m  p90 2.02m  polish 2157ms
+    ndt_r3_i30           pass 90.0%  >=10m 4.0%  p50 0.70m  p90 2.06m  polish 2164ms
+  tile [-72.0, 120.0] 765 frames, 313168 pts, 7470ms
+  tile [-120.0, 168.0] 852 frames, 306784 pts, 7082ms
+  tile [-144.0, 216.0] 1276 frames, 337226 pts, 9162ms
+  tile [-192.0, 264.0] 958 frames, 326376 pts, 8186ms
+  tile [-168.0, 288.0] 1187 frames, 339231 pts, 9305ms
+  tile [-120.0, 312.0] 1075 frames, 323752 pts, 8121ms
+  tile [-96.0, 336.0] 996 frames, 299546 pts, 7502ms
+  tile [-48.0, 336.0] 927 frames, 293722 pts, 7149ms
+  tile [-24.0, 336.0] 754 frames, 246687 pts, 5485ms
+  tile [0.0, 288.0] 608 frames, 203247 pts, 3892ms
+[sweep]  60/122  elapsed 2466s  eta 2549s  tiles 60 (0 thin)
+    none                 pass 26.7%  >=10m 13.3%  p50 2.27m  p90 21.33m  polish 7ms
+    icp_d1_i30           pass 70.0%  >=10m 6.7%  p50 1.24m  p90 6.15m  polish 4213ms
+    icp_d2_i30           pass 80.0%  >=10m 3.3%  p50 0.98m  p90 5.50m  polish 4452ms
+    icp_d4_i30           pass 85.0%  >=10m 5.0%  p50 0.98m  p90 3.92m  polish 4494ms
+    gicp_d1_i30          pass 88.3%  >=10m 5.0%  p50 0.63m  p90 3.72m  polish 5014ms
+    gicp_d2_i30          pass 91.7%  >=10m 3.3%  p50 0.61m  p90 1.54m  polish 5003ms
+    gicp_d4_i30          pass 93.3%  >=10m 3.3%  p50 0.67m  p90 1.40m  polish 4942ms
+    ndt_r1_i30           pass 83.3%  >=10m 6.7%  p50 0.65m  p90 5.24m  polish 2008ms
+    ndt_r2_i30           pass 85.0%  >=10m 5.0%  p50 0.66m  p90 4.31m  polish 2159ms
+    ndt_r3_i30           pass 85.0%  >=10m 5.0%  p50 0.70m  p90 4.36m  polish 2165ms
+  tile [24.0, 288.0] 582 frames, 211151 pts, 4102ms
+  tile [48.0, 264.0] 683 frames, 228747 pts, 5094ms
+  tile [72.0, 264.0] 696 frames, 273520 pts, 5875ms
+  tile [96.0, 240.0] 678 frames, 291314 pts, 6434ms
+  tile [120.0, 240.0] 667 frames, 302018 pts, 6433ms
+  tile [168.0, 240.0] 591 frames, 282939 pts, 5897ms
+  tile [192.0, 264.0] 329 frames, 188020 pts, 3404ms
+  tile [240.0, 288.0] 363 frames, 160559 pts, 3000ms
+  tile [288.0, 288.0] 368 frames, 157590 pts, 2895ms
+  tile [312.0, 264.0] 393 frames, 175180 pts, 3279ms
+[sweep]  70/122  elapsed 2876s  eta 2137s  tiles 70 (0 thin)
+    none                 pass 27.1%  >=10m 11.4%  p50 2.35m  p90 13.94m  polish 7ms
+    icp_d1_i30           pass 70.0%  >=10m 5.7%  p50 1.20m  p90 4.74m  polish 4364ms
+    icp_d2_i30           pass 80.0%  >=10m 2.9%  p50 0.96m  p90 3.46m  polish 4566ms
+    icp_d4_i30           pass 84.3%  >=10m 4.3%  p50 0.96m  p90 3.37m  polish 4582ms
+    gicp_d1_i30          pass 88.6%  >=10m 4.3%  p50 0.63m  p90 2.11m  polish 4957ms
+    gicp_d2_i30          pass 91.4%  >=10m 2.9%  p50 0.62m  p90 1.91m  polish 4907ms
+    gicp_d4_i30          pass 92.9%  >=10m 2.9%  p50 0.70m  p90 1.56m  polish 4809ms
+    ndt_r1_i30           pass 82.9%  >=10m 5.7%  p50 0.75m  p90 3.75m  polish 2018ms
+    ndt_r2_i30           pass 85.7%  >=10m 4.3%  p50 0.66m  p90 2.49m  polish 2162ms
+    ndt_r3_i30           pass 85.7%  >=10m 4.3%  p50 0.70m  p90 2.35m  polish 2175ms
+  tile [336.0, 216.0] 379 frames, 172073 pts, 3348ms
+  tile [360.0, 192.0] 418 frames, 212491 pts, 4447ms
+  tile [384.0, 168.0] 410 frames, 217597 pts, 4467ms
+  tile [408.0, 120.0] 339 frames, 151452 pts, 3190ms
+  tile [456.0, 48.0] 429 frames, 137405 pts, 2931ms
+  tile [480.0, 24.0] 511 frames, 211274 pts, 4352ms
+  tile [480.0, -48.0] 375 frames, 167958 pts, 3364ms
+  tile [456.0, -96.0] 320 frames, 178768 pts, 3614ms
+  tile [408.0, -120.0] 324 frames, 194269 pts, 3936ms
+[sweep]  80/122  elapsed 3240s  eta 1701s  tiles 79 (0 thin)
+    none                 pass 26.2%  >=10m 15.0%  p50 2.44m  p90 23.74m  polish 7ms
+    icp_d1_i30           pass 68.8%  >=10m 7.5%  p50 1.24m  p90 7.33m  polish 4279ms
+    icp_d2_i30           pass 78.8%  >=10m 6.2%  p50 0.98m  p90 7.15m  polish 4470ms
+    icp_d4_i30           pass 82.5%  >=10m 6.2%  p50 0.97m  p90 3.92m  polish 4483ms
+    gicp_d1_i30          pass 86.2%  >=10m 5.0%  p50 0.65m  p90 3.72m  polish 4948ms
+    gicp_d2_i30          pass 90.0%  >=10m 3.8%  p50 0.63m  p90 2.00m  polish 4912ms
+    gicp_d4_i30          pass 91.2%  >=10m 3.8%  p50 0.71m  p90 1.91m  polish 4807ms
+    ndt_r1_i30           pass 81.2%  >=10m 6.2%  p50 0.77m  p90 5.24m  polish 2006ms
+    ndt_r2_i30           pass 83.8%  >=10m 5.0%  p50 0.74m  p90 4.31m  polish 2152ms
+    ndt_r3_i30           pass 83.8%  >=10m 5.0%  p50 0.72m  p90 4.42m  polish 2167ms
+  tile [360.0, -144.0] 420 frames, 235958 pts, 5256ms
+  tile [312.0, -168.0] 421 frames, 272319 pts, 5530ms
+  tile [288.0, -144.0] 410 frames, 225019 pts, 3898ms
+  tile [264.0, -72.0] 156 frames, 133306 pts, 1971ms
+  tile [216.0, -24.0] 204 frames, 138728 pts, 2375ms
+  tile [216.0, 24.0] 312 frames, 209561 pts, 4088ms
+  tile [240.0, 48.0] 299 frames, 201374 pts, 3938ms
+  tile [264.0, 72.0] 214 frames, 134982 pts, 2634ms
+  tile [312.0, 96.0] 62 frames, 35871 pts, 465ms
+  tile [336.0, 120.0] 225 frames, 82849 pts, 1708ms
+[sweep]  90/122  elapsed 3626s  eta 1289s  tiles 89 (0 thin)
+    none                 pass 25.6%  >=10m 16.7%  p50 2.46m  p90 27.36m  polish 7ms
+    icp_d1_i30           pass 66.7%  >=10m 10.0%  p50 1.25m  p90 10.19m  polish 4314ms
+    icp_d2_i30           pass 77.8%  >=10m 8.9%  p50 1.02m  p90 9.94m  polish 4491ms
+    icp_d4_i30           pass 81.1%  >=10m 8.9%  p50 0.99m  p90 9.53m  polish 4498ms
+    gicp_d1_i30          pass 84.4%  >=10m 7.8%  p50 0.82m  p90 7.09m  polish 4936ms
+    gicp_d2_i30          pass 87.8%  >=10m 6.7%  p50 0.67m  p90 4.95m  polish 4889ms
+    gicp_d4_i30          pass 88.9%  >=10m 6.7%  p50 0.84m  p90 2.11m  polish 4809ms
+    ndt_r1_i30           pass 80.0%  >=10m 8.9%  p50 0.90m  p90 7.42m  polish 1996ms
+    ndt_r2_i30           pass 82.2%  >=10m 7.8%  p50 0.84m  p90 5.97m  polish 2137ms
+    ndt_r3_i30           pass 82.2%  >=10m 7.8%  p50 0.87m  p90 6.37m  polish 2161ms
+  tile [360.0, 144.0] 352 frames, 166300 pts, 3417ms
+  tile [384.0, 168.0] 410 frames, 217597 pts, 4314ms
+  tile [360.0, 216.0] 433 frames, 196600 pts, 3740ms
+  tile [312.0, 288.0] 350 frames, 158664 pts, 3249ms
+  tile [288.0, 288.0] 368 frames, 157590 pts, 2962ms
+  tile [216.0, 264.0] 327 frames, 176882 pts, 3310ms
+  tile [168.0, 240.0] 591 frames, 282939 pts, 6305ms
+  tile [120.0, 240.0] 667 frames, 302018 pts, 6796ms
+  tile [120.0, 192.0] 561 frames, 191865 pts, 3416ms
+[sweep]  100/122  elapsed 4036s  eta 888s  tiles 98 (0 thin)
+    none                 pass 26.0%  >=10m 16.0%  p50 2.35m  p90 25.16m  polish 7ms
+    icp_d1_i30           pass 67.0%  >=10m 10.0%  p50 1.25m  p90 10.19m  polish 4368ms
+    icp_d2_i30           pass 78.0%  >=10m 9.0%  p50 1.07m  p90 9.94m  polish 4547ms
+    icp_d4_i30           pass 81.0%  >=10m 9.0%  p50 1.03m  p90 9.53m  polish 4540ms
+    gicp_d1_i30          pass 84.0%  >=10m 8.0%  p50 0.88m  p90 7.09m  polish 4951ms
+    gicp_d2_i30          pass 87.0%  >=10m 7.0%  p50 0.81m  p90 4.95m  polish 4907ms
+    gicp_d4_i30          pass 87.0%  >=10m 7.0%  p50 0.90m  p90 2.38m  polish 4826ms
+    ndt_r1_i30           pass 80.0%  >=10m 9.0%  p50 0.96m  p90 7.42m  polish 1986ms
+    ndt_r2_i30           pass 82.0%  >=10m 8.0%  p50 0.89m  p90 5.97m  polish 2133ms
+    ndt_r3_i30           pass 82.0%  >=10m 8.0%  p50 0.94m  p90 6.37m  polish 2155ms
+  tile [144.0, 144.0] 195 frames, 139617 pts, 2021ms
+  tile [168.0, 120.0] 202 frames, 139777 pts, 2276ms
+  tile [192.0, 72.0] 321 frames, 220686 pts, 4435ms
+  tile [240.0, 72.0] 281 frames, 177986 pts, 3461ms
+  tile [240.0, 48.0] 299 frames, 201374 pts, 3952ms
+  tile [192.0, 24.0] 312 frames, 187696 pts, 3516ms
+  tile [216.0, -24.0] 204 frames, 138728 pts, 2286ms
+  tile [264.0, -72.0] 156 frames, 133306 pts, 1885ms
+  tile [288.0, -120.0] 367 frames, 198628 pts, 3546ms
+  tile [312.0, -168.0] 421 frames, 272319 pts, 5678ms
+[sweep]  110/122  elapsed 4420s  eta 482s  tiles 108 (0 thin)
+    none                 pass 26.4%  >=10m 16.4%  p50 2.27m  p90 25.86m  polish 7ms
+    icp_d1_i30           pass 66.4%  >=10m 10.9%  p50 1.31m  p90 10.19m  polish 4391ms
+    icp_d2_i30           pass 76.4%  >=10m 8.2%  p50 1.10m  p90 9.70m  polish 4564ms
+    icp_d4_i30           pass 80.0%  >=10m 8.2%  p50 1.07m  p90 6.87m  polish 4555ms
+    gicp_d1_i30          pass 81.8%  >=10m 8.2%  p50 0.97m  p90 7.09m  polish 4926ms
+    gicp_d2_i30          pass 84.5%  >=10m 6.4%  p50 0.90m  p90 2.67m  polish 4879ms
+    gicp_d4_i30          pass 84.5%  >=10m 6.4%  p50 1.00m  p90 2.38m  polish 4788ms
+    ndt_r1_i30           pass 78.2%  >=10m 9.1%  p50 1.06m  p90 7.42m  polish 1979ms
+    ndt_r2_i30           pass 80.0%  >=10m 7.3%  p50 0.96m  p90 5.97m  polish 2134ms
+    ndt_r3_i30           pass 80.0%  >=10m 7.3%  p50 0.98m  p90 5.87m  polish 2155ms
+  tile [312.0, -192.0] 391 frames, 263867 pts, 5657ms
+  tile [264.0, -216.0] 274 frames, 233953 pts, 4454ms
+  tile [216.0, -240.0] 211 frames, 181339 pts, 2989ms
+  tile [144.0, -240.0] 463 frames, 253964 pts, 5488ms
+  tile [96.0, -192.0] 636 frames, 273980 pts, 6112ms
+  tile [72.0, -168.0] 559 frames, 256598 pts, 5030ms
+  tile [48.0, -120.0] 528 frames, 219318 pts, 4432ms
+  tile [24.0, -72.0] 522 frames, 225257 pts, 4728ms
+  tile [0.0, -24.0] 617 frames, 257232 pts, 5838ms
+[sweep]  120/122  elapsed 4839s  eta 81s  tiles 117 (0 thin)
+    none                 pass 25.0%  >=10m 16.7%  p50 2.46m  p90 27.36m  polish 7ms
+    icp_d1_i30           pass 64.2%  >=10m 12.5%  p50 1.45m  p90 12.41m  polish 4370ms
+    icp_d2_i30           pass 75.0%  >=10m 10.0%  p50 1.10m  p90 11.34m  polish 4586ms
+    icp_d4_i30           pass 79.2%  >=10m 9.2%  p50 1.07m  p90 9.53m  polish 4590ms
+    gicp_d1_i30          pass 80.8%  >=10m 9.2%  p50 0.95m  p90 9.27m  polish 4948ms
+    gicp_d2_i30          pass 84.2%  >=10m 7.5%  p50 0.87m  p90 4.95m  polish 4909ms
+    gicp_d4_i30          pass 85.0%  >=10m 6.7%  p50 0.94m  p90 2.38m  polish 4825ms
+    ndt_r1_i30           pass 76.7%  >=10m 10.8%  p50 1.06m  p90 10.09m  polish 1978ms
+    ndt_r2_i30           pass 79.2%  >=10m 8.3%  p50 0.96m  p90 8.49m  polish 2138ms
+    ndt_r3_i30           pass 79.2%  >=10m 7.5%  p50 0.97m  p90 6.37m  polish 2162ms
+  tile [0.0, 24.0] 671 frames, 282715 pts, 6365ms
+  tile [-24.0, 24.0] 693 frames, 281568 pts, 6000ms
+[sweep]  122/122  elapsed 4923s  eta 0s  tiles 119 (0 thin)
+    none                 pass 24.6%  >=10m 16.4%  p50 2.47m  p90 25.86m  polish 7ms
+    icp_d1_i30           pass 63.9%  >=10m 12.3%  p50 1.45m  p90 11.84m  polish 4344ms
+    icp_d2_i30           pass 74.6%  >=10m 9.8%  p50 1.10m  p90 9.94m  polish 4578ms
+    icp_d4_i30           pass 79.5%  >=10m 9.0%  p50 1.07m  p90 6.87m  polish 4602ms
+    gicp_d1_i30          pass 81.1%  >=10m 9.0%  p50 0.95m  p90 7.09m  polish 4949ms
+    gicp_d2_i30          pass 84.4%  >=10m 7.4%  p50 0.87m  p90 2.67m  polish 4916ms
+    gicp_d4_i30          pass 85.2%  >=10m 6.6%  p50 0.94m  p90 2.25m  polish 4832ms
+    ndt_r1_i30           pass 77.0%  >=10m 10.7%  p50 1.05m  p90 10.05m  polish 1978ms
+    ndt_r2_i30           pass 79.5%  >=10m 8.2%  p50 0.94m  p90 5.97m  polish 2139ms
+    ndt_r3_i30           pass 79.5%  >=10m 7.4%  p50 0.96m  p90 5.87m  polish 2164ms
+
+=== summary (n=122) ===
+config                   pass%   >=10m%      p50      p90  polish_ms
+none                      24.6     16.4     2.47    25.86          7
+icp_d1_i30                63.9     12.3     1.45    11.84       4344
+icp_d2_i30                74.6      9.8     1.10     9.94       4578
+icp_d4_i30                79.5      9.0     1.07     6.87       4602
+gicp_d1_i30               81.1      9.0     0.95     7.09       4949
+gicp_d2_i30               84.4      7.4     0.87     2.67       4916
+gicp_d4_i30               85.2      6.6     0.94     2.25       4832
+ndt_r1_i30                77.0     10.7     1.05    10.05       1978
+ndt_r2_i30                79.5      8.2     0.94     5.97       2139
+ndt_r3_i30                79.5      7.4     0.96     5.87       2164
+wrote /home/cgt24/work/experiment_better_global_localization/out/exp2_sweep.csv

@@ -1,0 +1,13 @@
+map    /home/cgt24/work/dataset/rosBagFiles/mulran/kaist001
+query  /home/cgt24/work/dataset/rosBagFiles/mulran/kaist002
+tile   radius=80.000000 voxel=0.500000 grid=24.000000 min_frames=20
+ransac budget=10000 top_k=10 min_inlier=0.250000 threads=16
+config 0  icp_d6_i30
+config 1  icp_d4_i60
+config 2  gicp_d6_i30
+config 3  gicp_d4_i60
+config 4  ndt_r4_i30
+config 5  ndt_r3_i60
+map frames 8226 (8046 posed), query frames 8941 (8850 posed)
+evaluating 122 query frames (stride 73)
+  tile [72.0, -144.0] 539 frames, 230090 pts, 5181ms
