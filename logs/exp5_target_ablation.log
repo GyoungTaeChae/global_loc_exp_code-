@@ -1,0 +1,39 @@
+map    /home/cgt24/work/dataset/rosBagFiles/mulran/kaist001
+query  /home/cgt24/work/dataset/rosBagFiles/mulran/kaist002
+tile   radius=80.000000 voxel=0.500000 grid=24.000000 min_frames=20
+ransac budget=10000 top_k=10 min_inlier=0.250000 threads=16
+config 0  gicp_plugin  threads=16  target=full map  polish_points=0
+config 1  gicp_pluginparams_tile  threads=16  target=tile  polish_points=0
+config 2  gicp_tuned_fullmap  threads=16  target=full map  polish_points=0
+config 3  gicp_tuned_tile  threads=16  target=tile  polish_points=0
+map frames 8226 (8046 posed), query frames 8941 (8850 posed)
+evaluating 122 query frames (stride 73)
+  full map 2000 frames, 1943052 pts
+  full map 4000 frames, 3159112 pts
+  full map 6000 frames, 3998816 pts
+  full map 8000 frames, 4576411 pts
+full map: 4580487 pts at 0.500000m, accumulated in 17699ms
+  bound gicp_plugin to the full map in 3096ms
+  bound gicp_tuned_fullmap to the full map in 2711ms
+  tile [72.0, -144.0] 539 frames, 230090 pts, 5253ms
+  tile [48.0, -120.0] 528 frames, 219318 pts, 4244ms
+  tile [24.0, -72.0] 522 frames, 225257 pts, 4652ms
+  tile [0.0, -24.0] 617 frames, 257232 pts, 5630ms
+  tile [-24.0, 24.0] 693 frames, 281568 pts, 6627ms
+  tile [-48.0, 72.0] 751 frames, 277294 pts, 6058ms
+  tile [-72.0, 144.0] 758 frames, 314109 pts, 7160ms
+  tile [-120.0, 192.0] 936 frames, 292436 pts, 6975ms
+  tile [-168.0, 240.0] 1172 frames, 352767 pts, 9484ms
+  tile [-192.0, 264.0] 958 frames, 326376 pts, 7901ms
+[1/1 target-ablation]  10/122  elapsed 369s  eta 4138s  tiles 10 (0 thin)
+    gicp_plugin          pass 80.0%  >=10m 10.0%  p50 0.41m  p90 15.69m  polish 5227ms
+    gicp_pluginparams_tile pass 80.0%  >=10m 10.0%  p50 0.69m  p90 16.43m  polish 5127ms
+    gicp_tuned_fullmap   pass 80.0%  >=10m 10.0%  p50 0.41m  p90 14.61m  polish 9677ms
+    gicp_tuned_tile      pass 90.0%  >=10m 10.0%  p50 0.21m  p90 15.24m  polish 9131ms
+  tile [-144.0, 288.0] 1349 frames, 356654 pts, 10872ms
+  tile [-96.0, 312.0] 1104 frames, 321922 pts, 7792ms
+  tile [-72.0, 336.0] 984 frames, 308239 pts, 7146ms
+  tile [-24.0, 312.0] 918 frames, 262121 pts, 5716ms
+  tile [24.0, 288.0] 582 frames, 211151 pts, 3639ms
+  tile [72.0, 264.0] 696 frames, 273520 pts, 5599ms
+  tile [120.0, 240.0] 667 frames, 302018 pts, 5767ms

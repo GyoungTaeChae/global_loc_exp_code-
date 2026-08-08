@@ -170,17 +170,115 @@ different polish cannot move it. Reducing it means changing the candidate stage
 — `top_k`, `min_inlier`, the RANSAC budget, or the descriptor — which is outside
 this experiment.
 
-## Running
+## exp3 — what reusing the plugin's own registration costs
 
-`out/exp3_plugin_default.csv` — is a separately tuned polish worth its code, or
-should the plugin just reuse `reg_loc_`? Same frames as the sweeps.
+`out/exp3_plugin_default.csv`, `logs/exp3_plugin_default.log`. n=122, same
+frames as the sweeps, 45 min.
 
-`out/exp4_polish_points.csv` — does accuracy survive a thinner polish input
-(full / 5000 / 2000 / 1000 points), and does the ranking hold at each count?
+The plugin already binds `reg_loc_` to the whole map in `loadGlobalMap()` and
+already calls `calculateSourceCovariances()` on the scan in `runLocPass()`
+immediately before global localization runs. A polish that reuses `reg_loc_`
+therefore costs one `align()` per candidate and nothing else — no PolishEngine,
+no tile target, no covariance work. `gicp_plugin` is exactly that, with every
+value read off the plugin at `e9d662db`:
+
+| | value | where |
+|---|---|---|
+| max correspondence distance | 1.0 | `params.yaml relocalization.gicp` -> `params.cpp:140` |
+| max iterations | 32 | `gicp_max_iter_` |
+| correspondence randomness | 16 | `gicp_k_correspondences_` |
+| transformation / rotation epsilon | 0.01 / 0.01 | `gicp_transformation_ep_`, `gicp_rotation_ep_` |
+| initial lambda factor | 1e-9 | `gicp_init_lambda_factor_` |
+| threads | 16 | nano_gicp's constructor default; the plugin never calls `setNumThreads` |
+| target | whole map session, bound once | `loadGlobalMap` |
+
+| polish | pass% | >=10m% | p50 | p90 | polish ms | target prep |
+|---|---|---|---|---|---|---|
+| none | 24.6 | 16.4 | 2.47 | 25.86 | 7 | — |
+| **gicp_plugin** | **81.1** | 8.2 | 0.97 | **7.95** | 4848 | 3.3 s once |
+| gicp d=4 i=60 | 86.1 | 6.6 | 0.90 | 2.24 | 7786 | 0.10 s per tile |
+| ndt r=3 i=120 | 88.5 | 6.6 | 0.72 | 2.06 | 3751 | 0.01 s per tile |
+
+The whole kaist001 session accumulates to **4.58 M points** at 0.5 m, built in
+17.8 s; binding GICP to it (target covariances over 4.58 M points) takes 3.3 s.
+Both are one-time costs and are excluded from `polish_ms`.
+
+`pcl::VoxelGrid` cannot build that map: over a multi-kilometre session at a
+0.5 m leaf its voxel index overflows and it returns the input unfiltered with
+only a warning. `glexp::buildFullMap` uses a 64-bit voxel key instead.
+
+**The gap is 5.0 %p against tuned GICP and 7.4 %p against NDT.** Because all
+configurations see the same frames and the same candidates, these are paired
+comparisons (McNemar, exact two-sided):
+
+| comparison | frames only A passes | only B passes | p |
+|---|---|---|---|
+| ndt r=3 i=120 vs gicp_plugin | 9 | 0 | **0.004** |
+| gicp d=4 i=60 vs gicp_plugin | 7 | 1 | 0.070 |
+| ndt r=3 i=120 vs gicp d=4 i=60 | 3 | 0 | 0.250 |
+
+So the plugin default is significantly worse than tuned NDT, and worse than
+tuned GICP at a level the sample cannot quite resolve. The p90 gap is the
+sharper one: **7.95 m against 2.06-2.24 m** — the plugin's settings usually find
+the pose but miss badly when they miss.
+
+That gap has two independent causes, the registration settings and the
+whole-map target, and only the settings are cheap to change on a robot (two
+setter calls on the `reg_loc_` the plugin already owns). Which cause carries the
+5 %p is not answered by this run; a 2x2 ablation was started and stopped by
+hand at n=17, too few to report.
+
+## exp4 — how many scan points does polish need?
+
+`out/exp4_polish_points.csv`, `logs/exp4_polish_points.log`. n=61
+(`start=5, stride=146`, half the exp2 frames), 55 min. Each method at its
+converged setting, thinned by a fixed stride. Scoring always uses the whole
+scan, so the columns stay comparable across point counts.
+
+| polish | full (~11 k) | 5000 | 2000 | 1000 |
+|---|---|---|---|---|
+| icp d=4 i=120 — pass% / ms | 86.9 / 10660 | 86.9 / 4680 | 86.9 / 1917 | 86.9 / **974** |
+| gicp d=4 i=120 — pass% / ms | 91.8 / 11671 | 91.8 / 11251 | 91.8 / 12569 | 90.2 / 11746 |
+| ndt r=3 i=120 — pass% / ms | 91.8 / 3798 | 90.2 / 3179 | 88.5 / 2632 | 88.5 / 2343 |
+
+Paired, full against 1000 points: ICP **0** discordant frames, GICP 1, NDT 2 —
+no method degrades significantly at n=61.
+
+Three things follow.
+
+1. **ICP's cost is entirely the point count.** 11x less wall time from full to
+   1000 points with an identical pass set, and that 974 ms is on **one thread**.
+   Spread over the ten candidates it would be in the hundreds of milliseconds.
+   ICP is not slow; it was being fed too many points.
+2. **GICP's cost is irreducible.** Thinning does not speed it up at all
+   (11671 -> 11746 ms). With fewer points it stops converging and runs the
+   iteration cap instead.
+3. **NDT is the only one whose accuracy tracks the point count** (91.8 ->
+   88.5 %), and it saves only 1.6x.
+
+The ranking `gicp >= ndt > icp` holds at every point count, but at n=61 no
+between-method difference is significant (gicp vs icp p=0.25, gicp vs ndt 0
+discordant frames). The ranking evidence remains the n=122 sweeps; exp4's value
+is the within-method cost curves, which are paired and much tighter.
 
 ## Where this stands
 
-Converged, on 16 threads, with an ~11 k-point scan: **NDT r=3 i=120 leads** on
-pass rate, p50, p90 and wall time; GICP d=4 i=120 leads on gross mismatch; ICP
-is last on accuracy at every setting and is additionally single-threaded.
-Nothing is committed to the plugin until exp3 and exp4 report.
+On 16 threads with an ~11 k-point scan, converged: **NDT r=3 i=120** leads pass
+rate, p50, p90 and wall time at n=122; GICP d=4 i=120 leads gross mismatch; ICP
+is last on accuracy at every setting.
+
+exp4 complicates that for deployment: ICP at 1000 points holds its accuracy at
+974 ms single-threaded, a quarter of NDT's cost and a twelfth of GICP's, giving
+up about 5 %p. Which of those trades is right depends on the robot's budget, and
+is not something the measurements decide on their own.
+
+Nothing has been changed in the plugin.
+
+Open, not measured:
+
+- the exp3 2x2 (settings vs target) that would say whether the plugin can keep
+  reusing `reg_loc_` with two setter calls changed
+- a final comparison at large n (stride 10, n~885); every ranking above rests on
+  n=122 or less, where 2-3 %p is inside the noise
+- the gross-mismatch floor of 5.7-8.2 %, which belongs to the candidate stage
+- ICP parallelized across candidates, which exp4 makes worth measuring

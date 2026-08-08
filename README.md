@@ -95,7 +95,15 @@ Long runs belong in the background:
 
 | script | what it runs |
 |---|---|
-| `run_exp1_sample.sh` | trajectory-wide sample (stride 60), the four baseline configs, plus the ground-truth probe |
+| `run_exp1_sample.sh` | trajectory-wide sample (stride 60), four baseline configs, plus the ground-truth probe |
+| `run_exp2_sweep.sh` | main knob per method (ICP/GICP distance, NDT resolution) at 30 iterations |
+| `run_exp2b_sweep_edge.sh` | one step past exp2's knob range, plus 60 iterations |
+| `run_exp2c_iterations.sh` | all three at 120 iterations |
+| `run_exp2d_iterations_high.sh` | all three at 240 iterations (convergence check) |
+| `run_exp3_plugin_default.sh` | `gicp_plugin` (the plugin's own `reg_loc_` settings, whole-map target) against the tuned settings |
+| `run_exp4_polish_points.sh` | polish input thinned to full / 5000 / 2000 / 1000 points, all three methods |
+| `run_exp5_target_ablation.sh` | 2x2: plugin vs tuned settings, whole-map vs tile target |
+| `run_pending.sh` | runs the queued scripts back to back with `[i/n]` tags |
 
 ## Metrics
 
