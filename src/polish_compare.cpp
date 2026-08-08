@@ -62,13 +62,15 @@ std::vector<std::string> split(const std::string& text, char separator) {
 }
 
 // "icp,dist=2.0,iter=20" / "ndt,res=2.0,iter=30" / "none"
-glexp::PolishParams parsePolishConfig(const std::string& spec, int threads) {
+// num_threads is left at -1 unless the config overrides it, so the run-wide
+// threads= argument can fill it in afterwards whatever the argument order was.
+glexp::PolishParams parsePolishConfig(const std::string& spec) {
   const std::vector<std::string> parts = split(spec, ',');
   if (parts.empty()) {
     fail("empty polish config");
   }
   glexp::PolishParams params;
-  params.num_threads = threads;
+  params.num_threads = -1;
   if (!glexp::parsePolishMethod(parts[0], &params.method)) {
     fail("unknown polish method: " + parts[0]);
   }
@@ -89,17 +91,46 @@ glexp::PolishParams parsePolishConfig(const std::string& spec, int threads) {
       params.ndt_resolution = std::stod(value);
     } else if (key == "step") {
       params.ndt_step_size = std::stod(value);
+    } else if (key == "outlier") {
+      params.ndt_outlier_ratio = std::stod(value);
     } else if (key == "k") {
       params.correspondence_randomness = std::stoi(value);
+    } else if (key == "reps") {
+      params.rotation_epsilon = std::stod(value);
+    } else if (key == "lambda") {
+      params.init_lambda_factor = std::stod(value);
+    } else if (key == "points") {
+      params.polish_points = std::stoi(value);
+    } else if (key == "threads") {
+      params.num_threads = std::stoi(value);
+    } else if (key == "fullmap") {
+      params.full_map_target = value != "0";
     } else if (key == "label") {
       params.label = value;
     } else {
       fail("unknown polish option: " + key);
     }
   }
-  if (params.label.empty()) {
-    params.label = glexp::defaultPolishLabel(params);
-  }
+  return params;
+}
+
+/**
+ * GICP with exactly what the plugin already configures for reg_loc_ at
+ * e9d662db, aligned against the whole map session the way loadGlobalMap binds
+ * it. Nothing here is a free parameter: every value is read off the plugin.
+ */
+glexp::PolishParams pluginDefaultConfig() {
+  glexp::PolishParams params;
+  params.method = glexp::PolishMethod::Gicp;
+  params.num_threads = -1; // nano_gicp defaults to omp_get_max_threads()
+  params.max_correspondence_distance = 1.0; // relocalization.gicp in params.yaml
+  params.max_iterations = 32; // gicp_max_iter_
+  params.correspondence_randomness = 16; // gicp_k_correspondences_
+  params.transformation_epsilon = 0.01; // gicp_transformation_ep_
+  params.rotation_epsilon = 0.01; // gicp_rotation_ep_
+  params.init_lambda_factor = 1e-9; // gicp_init_lambda_factor_
+  params.full_map_target = true;
+  params.label = "gicp_plugin";
   return params;
 }
 
@@ -155,7 +186,8 @@ Arguments parseArguments(int argc, char** argv) {
     } else if (key == "corr_dist") {
       arguments.localizer.max_correspondence_distance = std::stod(value);
     } else if (key == "config") {
-      arguments.configs.push_back(parsePolishConfig(value, 0));
+      arguments.configs.push_back(
+        value == "gicp_plugin" ? pluginDefaultConfig() : parsePolishConfig(value));
     } else if (key == "gt_probe") {
       arguments.gt_probe = value != "0";
     } else {
@@ -163,11 +195,16 @@ Arguments parseArguments(int argc, char** argv) {
     }
   }
   arguments.localizer.num_threads = arguments.threads;
-  for (glexp::PolishParams& config : arguments.configs) {
-    config.num_threads = arguments.threads;
-  }
   if (arguments.configs.empty()) {
-    arguments.configs.push_back(parsePolishConfig("none", arguments.threads));
+    arguments.configs.push_back(parsePolishConfig("none"));
+  }
+  for (glexp::PolishParams& config : arguments.configs) {
+    if (config.num_threads < 0) {
+      config.num_threads = arguments.threads;
+    }
+    if (config.label.empty()) {
+      config.label = glexp::defaultPolishLabel(config);
+    }
   }
   return arguments;
 }
@@ -190,6 +227,10 @@ struct Tally {
   int pass = 0; // < 2 m and < 5 deg
   int gross = 0; // >= 10 m
   double polish_ms_total = 0.0;
+  // Target-side setup is kept out of polish_ms: on a robot it is paid once when
+  // the map is loaded, not per localization request.
+  double target_prep_ms_total = 0.0;
+  int target_binds = 0;
   std::vector<double> translation_errors;
 
   double percentile(double fraction) const {
@@ -203,6 +244,22 @@ struct Tally {
     return sorted[index];
   }
 };
+
+// pcl::IterativeClosestPoint has no OpenMP path, so its num_threads is
+// meaningless; nano_gicp and pclomp NDT honour theirs. Reported per config so
+// the timing columns can be read without guessing.
+int effectivePolishThreads(const glexp::PolishParams& config) {
+  switch (config.method) {
+    case glexp::PolishMethod::None:
+      return 0;
+    case glexp::PolishMethod::Icp:
+      return 1;
+    case glexp::PolishMethod::Gicp:
+    case glexp::PolishMethod::Ndt:
+      return config.num_threads;
+  }
+  return config.num_threads;
+}
 
 std::string formatSeconds(double seconds) {
   std::ostringstream text;
@@ -226,7 +283,13 @@ int main(int argc, char** argv) {
             << " min_inlier=" << arguments.localizer.min_inlier_fraction
             << " threads=" << arguments.threads << "\n";
   for (std::size_t i = 0; i < arguments.configs.size(); ++i) {
-    std::cout << "config " << i << "  " << arguments.configs[i].label << "\n";
+    const glexp::PolishParams& config = arguments.configs[i];
+    std::cout << "config " << i << "  " << config.label << "  threads="
+              << effectivePolishThreads(config)
+              << (config.method == glexp::PolishMethod::Icp ? " (PCL ICP is single threaded)" : "")
+              << "  target=" << (config.full_map_target ? "full map" : "tile")
+              << "  polish_points=" << (config.polish_points > 0 ? config.polish_points : 0)
+              << "\n";
   }
   std::cout << std::flush;
 
@@ -265,7 +328,8 @@ int main(int argc, char** argv) {
   output << "frame,timestamp_ns,tile_x,tile_y,tile_frames,tile_points,query_points,"
             "gt_x,gt_y,gt_yaw_deg,gt_inlier,gt_probe_ok,gt_probe_dt,gt_probe_dr,gt_probe_inlier,"
             "evaluated,passed,distinct,oracle_dt,feature_ms,ransac_ms,"
-            "config,polish_ms,best_inlier,best_error,err_trans,err_rot_deg,oracle_polished_dt\n";
+            "config,omp_threads,polish_input_points,target_prep_ms,polish_ms,"
+            "best_inlier,best_error,err_trans,err_rot_deg,oracle_polished_dt\n";
 
   glexp::Localizer localizer(arguments.localizer);
   std::vector<std::unique_ptr<glexp::PolishEngine>> engines;
@@ -287,6 +351,34 @@ int main(int argc, char** argv) {
     tallies[i].label = arguments.configs[i].label;
   }
 
+  // Whole-session map, bound once, the way the plugin's loadGlobalMap does it.
+  const bool needs_full_map = std::any_of(arguments.configs.begin(), arguments.configs.end(),
+    [](const glexp::PolishParams& config) { return config.full_map_target; });
+  if (needs_full_map) {
+    const auto build_start = std::chrono::steady_clock::now();
+    const mulran::Cloud::Ptr full_map =
+      glexp::buildFullMap(map_sequence, arguments.tile.voxel_size, 2000);
+    const double build_ms =
+      std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - build_start)
+        .count();
+    std::cout << "full map: " << full_map->size() << " pts at " << arguments.tile.voxel_size
+              << "m, accumulated in " << std::setprecision(0) << build_ms << "ms" << std::endl;
+    for (std::size_t i = 0; i < engines.size(); ++i) {
+      if (!arguments.configs[i].full_map_target) {
+        continue;
+      }
+      const auto bind_start = std::chrono::steady_clock::now();
+      engines[i]->setTarget(full_map);
+      const double bind_ms =
+        std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - bind_start)
+          .count();
+      tallies[i].target_prep_ms_total += bind_ms;
+      ++tallies[i].target_binds;
+      std::cout << "  bound " << arguments.configs[i].label << " to the full map in "
+                << std::setprecision(0) << bind_ms << "ms" << std::endl;
+    }
+  }
+
   Eigen::Vector3d current_tile_center = Eigen::Vector3d::Constant(std::nan(""));
   bool tile_ready = false;
   int tile_frames = 0;
@@ -296,7 +388,9 @@ int main(int argc, char** argv) {
   int frames_done = 0;
   const auto run_start = std::chrono::steady_clock::now();
 
+  std::vector<double> tile_prep_ms(arguments.configs.size(), 0.0);
   for (std::size_t index = 0; index < query_frames.size(); ++index) {
+    std::fill(tile_prep_ms.begin(), tile_prep_ms.end(), 0.0);
     const std::size_t frame = static_cast<std::size_t>(query_frames[index]);
     const Eigen::Matrix4d ground_truth = query_sequence.lidarPose(frame);
     const Eigen::Vector3d position = ground_truth.block<3, 1>(0, 3);
@@ -313,8 +407,17 @@ int main(int argc, char** argv) {
         continue;
       }
       localizer.setMap(tile);
-      for (auto& engine : engines) {
-        engine->setTarget(tile);
+      for (std::size_t i = 0; i < engines.size(); ++i) {
+        if (arguments.configs[i].full_map_target) {
+          continue; // bound once, before the loop
+        }
+        const auto bind_start = std::chrono::steady_clock::now();
+        engines[i]->setTarget(tile);
+        tile_prep_ms[i] = std::chrono::duration<double, std::milli>(
+          std::chrono::steady_clock::now() - bind_start)
+                            .count();
+        tallies[i].target_prep_ms_total += tile_prep_ms[i];
+        ++tallies[i].target_binds;
       }
       probe_engine.setTarget(tile);
       current_tile_center = center;
@@ -365,12 +468,15 @@ int main(int argc, char** argv) {
     }
 
     for (std::size_t config_index = 0; config_index < arguments.configs.size(); ++config_index) {
+      // Polish may see a thinned scan, but the rescore always sees the whole
+      // one, so best_inlier stays comparable across point counts.
+      const glexp::Cloud::ConstPtr polish_input = engines[config_index]->thinForPolish(query);
       const auto polish_start = std::chrono::steady_clock::now();
       glexp::Candidate best;
       double oracle_polished = std::nan("");
       for (const glexp::Candidate& candidate : candidates) {
         Eigen::Matrix4f refined = candidate.transformation;
-        engines[config_index]->refine(query, candidate.transformation, &refined);
+        engines[config_index]->refine(polish_input, candidate.transformation, &refined);
         const glexp::Candidate rescored = localizer.score(*query, refined);
         if (rescored.inlier_fraction > best.inlier_fraction ||
             (rescored.inlier_fraction == best.inlier_fraction && rescored.error < best.error)) {
@@ -419,6 +525,8 @@ int main(int argc, char** argv) {
              << stats.passed << "," << stats.distinct_candidates << "," << std::setprecision(3)
              << oracle_translation << "," << std::setprecision(1) << stats.feature_ms << ","
              << stats.ransac_ms << "," << arguments.configs[config_index].label << ","
+             << effectivePolishThreads(arguments.configs[config_index]) << ","
+             << polish_input->size() << "," << tile_prep_ms[config_index] << ","
              << polish_ms << "," << std::setprecision(4) << best.inlier_fraction << ","
              << best.error << "," << std::setprecision(3) << translation_error << ","
              << rotation_error << "," << oracle_polished << "\n";
@@ -453,15 +561,22 @@ int main(int argc, char** argv) {
   std::cout << "\n=== summary (n=" << frames_done << ") ===" << std::endl;
   std::cout << std::left << std::setw(22) << "config" << std::right << std::setw(8) << "pass%"
             << std::setw(9) << ">=10m%" << std::setw(9) << "p50" << std::setw(9) << "p90"
-            << std::setw(11) << "polish_ms" << std::endl;
-  for (const Tally& tally : tallies) {
+            << std::setw(11) << "polish_ms" << std::setw(9) << "threads" << std::setw(9)
+            << "binds" << std::setw(12) << "prep_ms/bind" << std::endl;
+  for (std::size_t i = 0; i < tallies.size(); ++i) {
+    const Tally& tally = tallies[i];
     std::cout << std::left << std::setw(22) << tally.label << std::right << std::setprecision(1)
               << std::setw(8) << 100. * static_cast<double>(tally.pass) / std::max(1, tally.frames)
               << std::setw(9) << 100. * static_cast<double>(tally.gross) / std::max(1, tally.frames)
               << std::setprecision(2) << std::setw(9) << tally.percentile(0.5) << std::setw(9)
               << tally.percentile(0.9) << std::setprecision(0) << std::setw(11)
-              << tally.polish_ms_total / std::max(1, tally.frames) << std::endl;
+              << tally.polish_ms_total / std::max(1, tally.frames) << std::setw(9)
+              << effectivePolishThreads(arguments.configs[i]) << std::setw(9) << tally.target_binds
+              << std::setw(12) << tally.target_prep_ms_total / std::max(1, tally.target_binds)
+              << std::endl;
   }
+  std::cout << "polish_ms excludes target preparation, which a robot pays once at map load."
+            << std::endl;
   std::cout << "wrote " << arguments.output_path << std::endl;
   return 0;
 }

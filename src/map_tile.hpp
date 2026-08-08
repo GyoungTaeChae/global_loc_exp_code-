@@ -7,6 +7,9 @@
 // once for many queries.
 
 #include <cmath>
+#include <cstdint>
+#include <iostream>
+#include <unordered_set>
 
 #include <Eigen/Core>
 
@@ -89,6 +92,60 @@ mulran::Cloud::Ptr buildMapTile(SequenceType& map_sequence, const Eigen::Vector3
   accumulated->is_dense = false;
 
   return raisin::voxelizePcd(*accumulated, static_cast<float>(params.voxel_size));
+}
+
+/**
+ * The whole map session accumulated into one cloud, which is what the plugin
+ * binds reg_loc_ to at map load time.
+ *
+ * pcl::VoxelGrid is not usable here: over a multi-kilometre session at a 0.5 m
+ * leaf its voxel index overflows, and it silently returns the input unfiltered.
+ * A 64-bit voxel key keeps the first point per voxel instead, which is a
+ * coarser downsample than a centroid but the same resolution.
+ *
+ * @param progress_every  print a line every N frames, 0 to stay quiet
+ */
+template <typename SequenceType>
+mulran::Cloud::Ptr buildFullMap(
+  SequenceType& map_sequence, double voxel_size, int progress_every) {
+  auto full = std::make_shared<mulran::Cloud>();
+  std::unordered_set<std::int64_t> occupied;
+  const double inverse_voxel = 1. / voxel_size;
+  int used_frames = 0;
+
+  for (std::size_t frame = 0; frame < map_sequence.size(); ++frame) {
+    if (!map_sequence.hasPose(frame)) {
+      continue;
+    }
+    const auto voxelized = map_sequence.voxelizedScan(frame);
+    const Eigen::Matrix4f pose = map_sequence.lidarPose(frame).template cast<float>();
+    for (const PointType& point : voxelized->points) {
+      const Eigen::Vector3f world =
+        pose.block<3, 3>(0, 0) * Eigen::Vector3f(point.x, point.y, point.z) +
+        pose.block<3, 1>(0, 3);
+      const std::int64_t x = static_cast<std::int64_t>(std::floor(world.x() * inverse_voxel));
+      const std::int64_t y = static_cast<std::int64_t>(std::floor(world.y() * inverse_voxel));
+      const std::int64_t z = static_cast<std::int64_t>(std::floor(world.z() * inverse_voxel));
+      const std::int64_t key = (x << 42) ^ (y << 21) ^ z;
+      if (!occupied.insert(key).second) {
+        continue;
+      }
+      PointType transformed = point;
+      transformed.x = world.x();
+      transformed.y = world.y();
+      transformed.z = world.z();
+      full->push_back(transformed);
+    }
+    ++used_frames;
+    if (progress_every > 0 && used_frames % progress_every == 0) {
+      std::cout << "  full map " << used_frames << " frames, " << full->size() << " pts"
+                << std::endl;
+    }
+  }
+  full->width = full->size();
+  full->height = 1;
+  full->is_dense = false;
+  return full;
 }
 
 } // namespace glexp

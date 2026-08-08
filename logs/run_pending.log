@@ -1,0 +1,19 @@
+[1/2] run_exp3_plugin_default.sh
+map    /home/cgt24/work/dataset/rosBagFiles/mulran/kaist001
+query  /home/cgt24/work/dataset/rosBagFiles/mulran/kaist002
+tile   radius=80.000000 voxel=0.500000 grid=24.000000 min_frames=20
+ransac budget=10000 top_k=10 min_inlier=0.250000 threads=16
+config 0  none  threads=0  target=tile  polish_points=0
+config 1  gicp_plugin  threads=16  target=full map  polish_points=0
+config 2  gicp_d4_i60  threads=16  target=tile  polish_points=0
+config 3  ndt_r3_i120  threads=16  target=tile  polish_points=0
+map frames 8226 (8046 posed), query frames 8941 (8850 posed)
+evaluating 122 query frames (stride 73)
+  full map 2000 frames, 1943052 pts
+  full map 4000 frames, 3159112 pts
+  full map 6000 frames, 3998816 pts
+  full map 8000 frames, 4576411 pts
+full map: 4580487 pts at 0.500000m, accumulated in 17799ms
+  bound gicp_plugin to the full map in 3270ms
+  tile [72.0, -144.0] 539 frames, 230090 pts, 4995ms
+  tile [48.0, -120.0] 528 frames, 219318 pts, 4296ms

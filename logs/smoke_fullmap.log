@@ -1,0 +1,26 @@
+map    /home/cgt24/work/dataset/rosBagFiles/mulran/kaist001
+query  /home/cgt24/work/dataset/rosBagFiles/mulran/kaist002
+tile   radius=80.000000 voxel=0.500000 grid=24.000000 min_frames=20
+ransac budget=10000 top_k=10 min_inlier=0.250000 threads=16
+config 0  gicp_plugin  threads=16  target=full map  polish_points=0
+config 1  gicp_d4_i60  threads=16  target=tile  polish_points=0
+map frames 8226 (8046 posed), query frames 8941 (8850 posed)
+evaluating 2 query frames (stride 100)
+  full map 2000 frames, 1943052 pts
+  full map 4000 frames, 3159112 pts
+  full map 6000 frames, 3998816 pts
+  full map 8000 frames, 4576411 pts
+full map: 4580487 pts at 0.500000m, accumulated in 17657ms
+  bound gicp_plugin to the full map in 3064ms
+  tile [72.0, -144.0] 539 frames, 230090 pts, 5035ms
+  tile [48.0, -72.0] 514 frames, 213597 pts, 4446ms
+  2/2  elapsed 37s  eta 0s  tiles 2 (0 thin)
+    gicp_plugin          pass 100.0%  >=10m 0.0%  p50 0.26m  p90 0.26m  polish 4886ms
+    gicp_d4_i60          pass 100.0%  >=10m 0.0%  p50 0.28m  p90 0.28m  polish 7808ms
+
+=== summary (n=2) ===
+config                   pass%   >=10m%      p50      p90  polish_ms  threads    bindsprep_ms/bind
+gicp_plugin              100.0      0.0     0.26     0.26       4886       16        1        3064
+gicp_d4_i60              100.0      0.0     0.28     0.28       7808       16        2         102
+polish_ms excludes target preparation, which a robot pays once at map load.
+wrote out/smoke_fullmap.csv

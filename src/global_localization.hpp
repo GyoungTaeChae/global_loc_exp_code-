@@ -134,9 +134,20 @@ struct PolishParams {
   int max_iterations = 20;
   double max_correspondence_distance = 2.0; // ICP and GICP
   double transformation_epsilon = 1e-3;
+  double rotation_epsilon = 2e-3; // GICP only; nano_gicp's own default
+  double init_lambda_factor = 1e-9; // GICP only
   int correspondence_randomness = 20; // GICP covariance neighbourhood
   double ndt_resolution = 2.0;
   double ndt_step_size = 0.1;
+  double ndt_outlier_ratio = 0.55; // pclomp's own default
+  // 0 = polish sees the whole downsampled scan. Otherwise the scan is strided
+  // down to at most this many points before polish; scoring still uses the
+  // whole scan, so the score stays comparable across settings.
+  int polish_points = 0;
+  // false = polish aligns against the same map tile the candidates came from.
+  // true = against the whole map session, which is what the plugin does: it
+  // binds reg_loc_ to globalmap_ once at load time.
+  bool full_map_target = false;
   std::string label; // used in the csv; defaults to method + key params
 };
 
@@ -155,7 +166,11 @@ class PolishEngine
 
   const PolishParams& params() const { return params_; }
 
+  /** Heavy target-side setup: kd-tree, GICP covariances or the NDT voxel grid. */
   void setTarget(const Cloud::ConstPtr& map);
+
+  /** Strides the scan down to params().polish_points, or returns it unchanged. */
+  Cloud::ConstPtr thinForPolish(const Cloud::ConstPtr& scan) const;
 
   /**
    * Refines initial by aligning query to the map. refined always receives the

@@ -314,7 +314,7 @@ std::string defaultPolishLabel(const PolishParams& params) {
   label << polishMethodName(params.method);
   switch (params.method) {
     case PolishMethod::None:
-      break;
+      return label.str();
     case PolishMethod::Icp:
     case PolishMethod::Gicp:
       label << "_d" << params.max_correspondence_distance << "_i" << params.max_iterations;
@@ -323,7 +323,35 @@ std::string defaultPolishLabel(const PolishParams& params) {
       label << "_r" << params.ndt_resolution << "_i" << params.max_iterations;
       break;
   }
+  if (params.polish_points > 0) {
+    label << "_p" << params.polish_points;
+  }
+  if (params.full_map_target) {
+    label << "_fullmap";
+  }
+  if (params.num_threads == 1) {
+    label << "_t1";
+  }
   return label.str();
+}
+
+Cloud::ConstPtr PolishEngine::thinForPolish(const Cloud::ConstPtr& scan) const {
+  if (params_.polish_points <= 0 || static_cast<int>(scan->size()) <= params_.polish_points) {
+    return scan;
+  }
+  // A fixed stride rather than a random draw: the scan is ordered by lidar
+  // ring and azimuth, so striding keeps the angular spread while a prefix cut
+  // would keep only part of the sweep.
+  auto thinned = std::make_shared<Cloud>();
+  thinned->reserve(params_.polish_points);
+  const double step = static_cast<double>(scan->size()) / params_.polish_points;
+  for (int i = 0; i < params_.polish_points; ++i) {
+    thinned->push_back(scan->points[static_cast<std::size_t>(i * step)]);
+  }
+  thinned->width = thinned->size();
+  thinned->height = 1;
+  thinned->is_dense = scan->is_dense;
+  return thinned;
 }
 
 struct PolishEngine::Impl {
@@ -351,9 +379,12 @@ PolishEngine::PolishEngine(const PolishParams& params):
       impl_->gicp.setMaxCorrespondenceDistance(params_.max_correspondence_distance);
       impl_->gicp.setMaximumIterations(params_.max_iterations);
       impl_->gicp.setTransformationEpsilon(params_.transformation_epsilon);
+      impl_->gicp.setRotationEpsilon(params_.rotation_epsilon);
+      impl_->gicp.setInitialLambdaFactor(params_.init_lambda_factor);
       break;
     case PolishMethod::Ndt:
       impl_->ndt.setNumThreads(params_.num_threads);
+      impl_->ndt.setOutlierRatio(params_.ndt_outlier_ratio);
       impl_->ndt.setNeighborhoodSearchMethod(pclomp::DIRECT7);
       // Resolution must be set before setInputTarget: the voxel grid is built
       // there and setResolution only rebuilds it once a source exists.
